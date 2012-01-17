@@ -108,8 +108,7 @@ class gnupg {
     define gnupg_pubkey($keydir, $user) {
 	include base
 	$pubkey = "$base::keymaster_storage/$name/pubkey"
-	$keyidfile = "${gnupg::base::keymaster_storage}/$name/keyid"
-	$keyid = file($keyidfile, '/dev/null')
+	$keyid = gnupg_keyid($name)
 
 	if $keyid != '' {
 	    file { "$base::pubkey_storage/$name":
@@ -118,9 +117,10 @@ class gnupg {
 		owner => $user,
 		mode => 600,
 	    }
-	    exec { "gpg --homedir \"$keydir\" --import \"$base::pubkey_storage/$name\"":
+	    exec { "import pubkey $name":
+		command => "gpg --homedir $keydir --import $base::pubkey_storage/$name",
 		user => $user,
-		unless => "gpg --homedir \"$keydir\" --list-keys \"$keyid\" > /dev/null 2>&1",
+		unless => "gpg --homedir $keydir --list-keys $keyid",
 		require => File["$base::pubkey_storage/$name"],
 	    }
 	} else {
@@ -131,7 +131,7 @@ class gnupg {
     define gnupg_privkey($keydir, $user) {
 	include base
 	$privkey = "$gnupg::base::keymaster_storage/$name/privkey"
-	$keyid = file("$gnupg::base::keymaster_storage/$name/keyid", '/dev/null')
+	$keyid = gnupg_keyid($name)
 
 	if $keyid != '' {
 	    file { "$base::privkey_storage/$name":
@@ -140,9 +140,10 @@ class gnupg {
 		owner => $user,
 		mode => 600,
 	    }
-	    exec { "gpg --homedir \"$keydir\" --import \"$base::privkey_storage/$name\"":
+	    exec { "import privkey $name":
+	    	command => "gpg --homedir $keydir --import $base::privkey_storage/$name",
 		user => $user,
-		unless => "gpg --homedir \"$keydir\" --list-secret-keys \"$keyid\" > /dev/null 2>&1",
+		unless => "gpg --homedir $keydir --list-secret-keys $keyid",
 		require => File["$base::privkey_storage/$name"],
 	    }
 	}
