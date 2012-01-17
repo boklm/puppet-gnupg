@@ -89,7 +89,7 @@ class gnupg {
 	    require => [File[$keydir], File[$batchdir]],
 	}
 
-	exec {"gpg --homedir \"$keydir\" --list-keys | grep '^pub' | sed 's:^pub\s\\+.\\+/::;s/ .*$//' > $keyid":
+	exec {"gpg --homedir \"$keydir\" --list-keys | grep '^pub' | perl -pe 's:^pub\s+.+/::; s/ .*$//; chomp' > $keyid":
 	    creates => $keyid,
 	    require => Gnupg::Keys[$name],
 	}
