@@ -15,7 +15,7 @@ fi
 
 touch "$LOCK"
 
-/sbin/rngd -f -r /dev/urandom &
+/usr/sbin/rngd -f -r /dev/urandom &
 RAND=$!
 cd $HOMEDIR
 gpg --homedir $HOMEDIR --batch --gen-key $BATCHFILE
